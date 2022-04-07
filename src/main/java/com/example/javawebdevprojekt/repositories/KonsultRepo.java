@@ -8,5 +8,4 @@ import java.util.List;
 
 @Repository
 public interface KonsultRepo extends JpaRepository<Konsult, Integer> {
-    //List<Konsult> findKonsultBy_Personnr(String personnr);
 }
