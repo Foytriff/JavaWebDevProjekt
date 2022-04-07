@@ -30,6 +30,5 @@ public class JavaWebDevProjektApplication implements CommandLineRunner {
         TimRapport rap1 = new TimRapport("Pulsen", 8, arne);
         TimRapport rap2 = new TimRapport("Pagen", 8, arne);
         TimRapport rap3 = new TimRapport("Ajax", 8, arne);
-        TimRapport rap4 = new TimRapport("githabb", 8, arne);
     }
 }
