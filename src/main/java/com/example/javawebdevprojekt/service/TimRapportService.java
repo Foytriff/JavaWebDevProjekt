@@ -15,4 +15,14 @@ public class TimRapportService {
     public List<TimRapport> findAll(){
         return timRapportRepo.findAll();
     }
+
+    public List<TimRapport> findByKonsultId(int KId){
+        return timRapportRepo.findAll().stream()
+                .filter(tr -> tr.getKonsult().getId() == KId)
+                .toList();
+    }
+
+    public TimRapport saveTR(TimRapport timRapport){
+        return timRapportRepo.save(timRapport);
+    }
 }
