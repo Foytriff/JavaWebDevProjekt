@@ -25,4 +25,8 @@ public class TimRapportService {
     public TimRapport saveTR(TimRapport timRapport){
         return timRapportRepo.save(timRapport);
     }
+
+    public void deleteById(int id) {
+        timRapportRepo.deleteById(id);
+    }
 }

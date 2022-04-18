@@ -19,10 +19,12 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.security.PermitAll;
 import java.util.List;
 
-@Route(value = "/user", layout = AppView.class)
+@Route(value = "/", layout = AppView.class)
 @AnonymousAllowed
+@PermitAll
 public class UserView extends VerticalLayout {
     KonsultService konsultService;
     TimRapportService timRapportService;
@@ -38,25 +40,42 @@ public class UserView extends VerticalLayout {
         int loggedInId = konsultList.get(0).getId();
         grid.setItems(timRapportService.findByKonsultId(loggedInId));
 
-        grid.addColumn(TimRapport::getOrganisation);
-        grid.addColumn(tr -> tr.getKonsult().getUsername());
+        grid.addColumn(TimRapport::getOrgName);
+        grid.addColumn(tr -> tr.getKonsult().getFirstName() + " " + tr.getKonsult().getLastName());
         grid.addColumn(TimRapport::getDatum);
         grid.addColumn(TimRapport::getAntalTimmar);
 
+        grid.addComponentColumn(timRapport -> {
+            Button deleteButton = new Button("Delete", evt -> {
+                timRapportService.deleteById(timRapport.getId());
+                updateView(loggedInId);
+            });
+            return deleteButton;
+        });
+
+        grid.asSingleSelect().addValueChangeListener(evt -> handleAddRapport(loggedInId, new Dialog(), evt.getValue()));
+
         add(grid);
 
-        Button addNewRapport = new Button("Add Rapport", evt -> handleAddRapport(loggedInId, new Dialog()));
+        Button addNewRapport = new Button("Add Rapport", evt -> handleAddRapport(loggedInId, new Dialog(), new TimRapport()));
 
         add(addNewRapport);
     }
 
-    private void handleAddRapport(int loggedInId, Dialog dialog) {
+    private void handleDelete() {
+    }
+
+    private void handleAddRapport(int loggedInId, Dialog dialog, TimRapport timRapport) {
         Konsult konsult = konsultService.findKonsultById(loggedInId);
-        RapportForm newTrForm = new RapportForm(timRapportService, organisationService, this, konsult);
-        //newTrForm.setTimRapport(new TimRapport());
+        RapportForm newTrForm = new RapportForm(timRapportService, organisationService, konsultService, this, konsult);
+        newTrForm.setTimRapport(timRapport);
 
         dialog.add(newTrForm);
         dialog.open();
 
+    }
+
+    public void updateView(int loggedInId) {
+        grid.setItems(timRapportService.findByKonsultId(loggedInId));
     }
 }

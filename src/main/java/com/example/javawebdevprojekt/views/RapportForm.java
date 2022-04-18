@@ -4,6 +4,7 @@ import com.example.javawebdevprojekt.entities.Konsult;
 import com.example.javawebdevprojekt.entities.Organisation;
 import com.example.javawebdevprojekt.entities.TimRapport;
 import com.example.javawebdevprojekt.repositories.OrganisationRepo;
+import com.example.javawebdevprojekt.service.KonsultService;
 import com.example.javawebdevprojekt.service.OrganisationService;
 import com.example.javawebdevprojekt.service.TimRapportService;
 import com.vaadin.flow.component.button.Button;
@@ -28,23 +29,39 @@ public class RapportForm extends FormLayout {
     ComboBox<Organisation> organisation = new ComboBox<>("Select Organisation");
     Button saveButton = new Button("Save", evt -> onSave());
 
+    int loggedInId;
+
     Binder<TimRapport> binder = new BeanValidationBinder<>(TimRapport.class);
 
-    Converter<Organisation, String> converter = new Converter<>(){
-
+    Converter<String, Organisation> orgConverter = new Converter<String, Organisation>() {
         @Override
-        public Result<String> convertToModel(Organisation organisation, ValueContext valueContext) {
+        public Result<Organisation> convertToModel(String s, ValueContext valueContext) {
             try {
-                return Result.ok(organisation.getName());
+                return Result.ok(organisationService.findAll().stream().filter(o -> o.getName().equals(s)).findFirst().orElseThrow());
             } catch (Exception e){
-                System.out.println("error");
                 return Result.error("bad");
             }
         }
 
         @Override
-        public Organisation convertToPresentation(String s, ValueContext valueContext) {
-            return organisation.getValue();
+        public String convertToPresentation(Organisation organisation, ValueContext valueContext) {
+            return null;
+        }
+    };
+
+    Converter<String, Konsult> konsultConverter = new Converter<String, Konsult>() {
+        @Override
+        public Result<Konsult> convertToModel(String s, ValueContext valueContext) {
+            try {
+                return Result.ok(konsultService.findKonsultById(loggedInId));
+            } catch (Exception e){
+                return Result.error("badKon");
+            }
+        }
+
+        @Override
+        public String convertToPresentation(Konsult konsult, ValueContext valueContext) {
+            return konsultField.getValue();
         }
     };
 
@@ -53,40 +70,40 @@ public class RapportForm extends FormLayout {
 
     OrganisationService organisationService;
 
+    KonsultService konsultService;
 
-    public RapportForm(TimRapportService timRapportService, OrganisationService organisationService, UserView userView, Konsult konsult){
+
+    public RapportForm(TimRapportService timRapportService, OrganisationService organisationService, KonsultService konsultService, UserView userView, Konsult konsult){
         this.timRapportService = timRapportService;
         this.organisationService = organisationService;
+        this.loggedInId = konsult.getId();
+        this.konsultService = konsultService;
         this.userView = userView;
         konsultField.setReadOnly(false);
-        organisation.setItems(organisationService.findAll());
+        organisation.setItems(organisationService.findAll().stream().toList());
         konsultField.setValue(konsult.getFirstName() + " " + konsult.getLastName());
 
-        konsultField.setReadOnly(true);
-        binder.forField(organisation).withConverter(
-                converter
-        ).bind(TimRapport::getOrganisation, (tr, what) -> {
-            Organisation org = organisationService.findAll().stream()
-                    .filter(o -> o.getName().equals(what))
-                    .findFirst().orElseThrow();
-            tr.setOrganisation(org);
-        });
+        binder.forField(konsultField).withConverter(konsultConverter).bind(TimRapport::getKonsult, TimRapport::setKonsult);
+        binder.forField(organisation).bind(TimRapport::getOrganisation, TimRapport::setOrganisation);
         binder.bindInstanceFields(this);
+
+        konsultField.setReadOnly(true);
 
         add(antalTimmar, organisation, konsultField, saveButton);
     }
 
     private void onSave() {
 
-        TimRapport timRapport = new TimRapport();
-        binder.setBean(timRapport);
-        timRapport = binder.validate().getBinder().getBean();
+        TimRapport timRapport = binder.validate().getBinder().getBean();
         timRapportService.saveTR(timRapport);
+
         this.getParent().ifPresent(component -> {
             if(component instanceof Dialog){
                 ((Dialog) component).close();
             }
         });
+
+        userView.updateView(loggedInId);
     }
 
     public void setTimRapport(TimRapport timRapport){

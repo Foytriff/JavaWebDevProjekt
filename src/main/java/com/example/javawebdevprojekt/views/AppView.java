@@ -33,7 +33,7 @@ public class AppView extends AppLayout {
 
         addToNavbar(navbarLayout);
 
-        RouterLink userViewLink = new RouterLink("UserVieww(Konsult)", UserView.class);
+        RouterLink userViewLink = new RouterLink("UserView (Konsult)", UserView.class);
         addToDrawer(new VerticalLayout(userViewLink));
 
     }

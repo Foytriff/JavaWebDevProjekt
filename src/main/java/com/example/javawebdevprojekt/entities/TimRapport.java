@@ -33,10 +33,17 @@ public class TimRapport {
     }
 
     public TimRapport(){
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+        this.datum = dtf.format(now);
     }
 
-    public String getOrganisation() {
+    public Organisation getOrganisation() {
+        return organisation;
+    }
+
+    public String getOrgName(){
         return organisation.getName();
     }
 

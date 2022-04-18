@@ -1,13 +1,13 @@
 package com.example.javawebdevprojekt.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.annotation.Nullable;
+import javax.persistence.*;
 
 @Entity
 public abstract class Anv {
+    @Nullable()
     String username;
+    @Column
     String password;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +24,7 @@ public abstract class Anv {
     public int getId(){
         return this.Id;
     }
+
     public String getUsername(){
         return this.username;
     }

@@ -31,11 +31,15 @@ public class JavaWebDevProjektApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        Konsult arne = new Konsult("hej", "hopp");
+        Konsult arne = new Konsult("hejhej", "plopp");
         arne.setFirstName("Arne");
         arne.setLastName("Arnesson");
         konsultRepo.save(arne);
 
+        Konsult per = new Konsult("hej", "hopp");
+        per.setFirstName("Per");
+        per.setLastName("Peransson");
+        konsultRepo.save(per);
 
 
         Organisation org1 = new Organisation("Pulsen");
@@ -48,9 +52,10 @@ public class JavaWebDevProjektApplication implements CommandLineRunner {
         TimRapport rap2 = new TimRapport(org2, 8, arne);
         TimRapport rap3 = new TimRapport(org3, 8, arne);
         TimRapport rap4 = new TimRapport(org4, 8, arne);
+        TimRapport rap5 = new TimRapport(org4, 8, per);
 
         organisationRepo.saveAll(List.of(org1, org2, org3, org4, org5));
 
-        timRapportRepo.saveAll(List.of(rap1, rap2, rap3, rap4));
+        timRapportRepo.saveAll(List.of(rap1, rap2, rap3, rap4, rap5));
     }
 }
